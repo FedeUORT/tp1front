@@ -1,0 +1,25 @@
+<html>
+	<head>
+		<meta charset="UTF-8" />	
+		<!-- <title>{title}</title> -->
+	</head>
+	<body>
+		<!-- <h1>{title}</h1> -->
+		<h2>Buscar winrate de jugador</h2>
+		<input type="text" id = "summonerName" placeholder="Nombre del jugador">
+		<button id = "searchSummoner"></button>
+		<script>
+			const title = "Que onda wacho!";
+
+			let summonerName = 	document.getElementById("summonerName") as HTMLInputElement; 
+			const searchSummoner = document.getElementById("searchSummoner");
+
+			function SearchWinrate()
+			{
+				console.log(summonerName.value);
+			}
+
+			searchSummoner?.addEventListener("click", SearchWinrate)
+		</script> 
+	</body>
+</html>
