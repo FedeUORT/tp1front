@@ -1,0 +1,49 @@
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<!-- <title>{title}</title> -->
+	</head>
+	<body>
+		<button id="comeBackToMain">Come back to main</button>
+		<br />
+		<h1 id="summonerName">Summoner's name:</h1>
+		<h2 id="waitText" style="color: red">Wait a few seconds...</h2>
+		<h2 id="winrate">Winrate:</h2>
+		<h3 id="wins">Wins:</h3>
+		<h3 id="losses">Losses:</h3>
+		<h3 id="totalGames">Total games played:</h3>
+
+		<script>
+			const comeBackToMainBtn = document
+				.getElementById("comeBackToMain")
+				?.addEventListener("click", () => {
+					window.location.href = "/..";
+				});
+
+			const summonerName = document.getElementById("summonerName");
+			const winrate = document.getElementById("winrate");
+			const wins = document.getElementById("wins");
+			const losses = document.getElementById("losses");
+			const totalGames = document.getElementById("totalGames");
+
+			const waitText = document.getElementById("waitText");
+
+			const name = localStorage.getItem("summonerName");
+			const puuid = localStorage.getItem("summonerPUUID");
+
+			if (summonerName)
+				summonerName.textContent = "Summoner's name: " + name;
+			const response = await fetch(`/api/winrate?&puuid=${puuid}`);
+			if (response.ok) {
+				if (waitText) waitText.textContent = "";
+				const data = await response.json();
+				if (winrate) winrate.textContent = "Winrate: " + data.winrate;
+				if (wins) wins.textContent = "Wins: " + data.wins;
+				if (losses) losses.textContent = "Losses: " + data.losses;
+				if (totalGames)
+					totalGames.textContent = "Total games: " + data.totalGames;
+			} else alert("Something went wrong with the winrate fetch");
+		</script>
+	</body>
+	<script></script>
+</html>

@@ -5,16 +5,58 @@
 	</head>
 	<body>
 		<!-- <h1>{title}</h1> -->
-		<h2>Buscar winrate de jugador</h2>
-		<input type="text" id="summonerName" placeholder="Nombre del jugador" />
-		<button id="searchSummoner"></button>
+		<h1>Search player</h1>
+		<input
+			type="text"
+			id="summonerNameInput"
+			placeholder="Nombre del jugador"
+		/>
+		<button id="searchSummoner">search</button>
+		<br />
+		<h2 id="summonerName">Name: Unknown</h2>
+		<h2 id="summonerTag">Tag: Unknown</h2>
+		<h2 id="summonerPUUID">PUUID: Unknown</h2>
+		<br />
+		<button id="checkRecentWinrate">Check recent winrate</button>
+		<button id="checkMostPlayedChampions"
+			>Check most played champions</button
+		>
+		<button id="checkProfile">Check profile</button>
 		<script>
 			const summonerNameInput = document.getElementById(
-				"summonerName",
+				"summonerNameInput",
 			) as HTMLInputElement;
-			const searchSummonerBtn = document.getElementById("searchSummoner");
 
-			async function SearchWinrate() {
+			const summonerName = document.getElementById("summonerName");
+			const summonerTag = document.getElementById("summonerTag");
+			const summonerPUUID = document.getElementById("summonerPUUID");
+
+			if (summonerName)
+				summonerName.textContent =
+					"Name: " + localStorage.getItem("summonerName");
+
+			if (summonerTag)
+				summonerTag.textContent =
+					"Tag: " + localStorage.getItem("summonerTag");
+
+			if (summonerPUUID)
+				summonerPUUID.textContent =
+					"PUUID: " + localStorage.getItem("summonerPUUID");
+
+			const searchSummonerBtn = document.getElementById("searchSummoner");
+			const checkRecentWinrateBtn = document
+				.getElementById("checkRecentWinrate")
+				?.addEventListener("click", () => {
+					window.location.href = "/Winrate";
+				});
+			const checkMostPlayerChampionsBtn = document
+				.getElementById("checkMostPlayedChampions")
+				?.addEventListener("click", () => {
+					window.location.href = "/ChampionsInfo";
+				});
+			const checkProfile = document.getElementById("checkProfile");
+
+			async function SearchPlayer() {
 				const fullId = summonerNameInput.value;
 				const [name, tag] = fullId.split("#");
 
@@ -26,14 +68,27 @@
 				}
 
 				const response = await fetch(
-					`/api/winrate?name=${name}&tag=${tag}`,
+					`/api/player?name=${name}&tag=${tag}`,
 				);
-				const data = await response.json();
-
-				console.log("Datos desde el servidor de Astro:", data);
+				if (response.ok) {
+					const data = await response.json();
+					if (summonerName) {
+						summonerName.textContent = "Name: " + data.name;
+						localStorage.setItem("summonerName", data.name);
+					}
+					if (summonerTag) {
+						summonerTag.textContent = "Tag: " + data.tag;
+						localStorage.setItem("summonerTag", data.tag);
+					}
+					if (summonerPUUID) {
+						summonerPUUID.textContent = "PUUID: " + data.puuid;
+						localStorage.setItem("summonerPUUID", data.puuid);
+					}
+					console.log("Datos desde el servidor de Astro:", data);
+				} else alert("Something went wrong with the player fecth");
 			}
 
-			searchSummonerBtn?.addEventListener("click", SearchWinrate);
+			searchSummonerBtn?.addEventListener("click", SearchPlayer);
 		</script>
 	</body>
 </html>
