@@ -1,25 +1,39 @@
 <html>
 	<head>
-		<meta charset="UTF-8" />	
+		<meta charset="UTF-8" />
 		<!-- <title>{title}</title> -->
 	</head>
 	<body>
 		<!-- <h1>{title}</h1> -->
 		<h2>Buscar winrate de jugador</h2>
-		<input type="text" id = "summonerName" placeholder="Nombre del jugador">
-		<button id = "searchSummoner"></button>
+		<input type="text" id="summonerName" placeholder="Nombre del jugador" />
+		<button id="searchSummoner"></button>
 		<script>
-			const title = "Que onda wacho!";
+			const summonerNameInput = document.getElementById(
+				"summonerName",
+			) as HTMLInputElement;
+			const searchSummonerBtn = document.getElementById("searchSummoner");
 
-			let summonerName = 	document.getElementById("summonerName") as HTMLInputElement; 
-			const searchSummoner = document.getElementById("searchSummoner");
+			async function SearchWinrate() {
+				const fullId = summonerNameInput.value;
+				const [name, tag] = fullId.split("#");
 
-			function SearchWinrate()
-			{
-				console.log(summonerName.value);
+				if (!name || !tag) {
+					alert(
+						"Por favor ingresa tu Riot ID en el formato Nombre#Tag (ej: MiNombre#LAS)",
+					);
+					return;
+				}
+
+				const response = await fetch(
+					`/api/winrate?name=${name}&tag=${tag}`,
+				);
+				const data = await response.json();
+
+				console.log("Datos desde el servidor de Astro:", data);
 			}
 
-			searchSummoner?.addEventListener("click", SearchWinrate)
-		</script> 
+			searchSummonerBtn?.addEventListener("click", SearchWinrate);
+		</script>
 	</body>
 </html>
