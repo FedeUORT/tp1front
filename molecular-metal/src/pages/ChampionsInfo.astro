@@ -1,17 +1,95 @@
 <html>
 	<head>
 		<meta charset="UTF-8" />
-		<!-- <title>{title}</title> -->
 	</head>
 	<body>
 		<button id="comeBackToMain">Come back to main</button>
+
+		<br /><br />
+		<h1 id="summonerNameTitle">Top 10 Champions of:</h1>
+
+		<div id="championsContainer">
+			<p>Loading masteries...</p>
+		</div>
+
 		<script>
 			const comeBackToMainBtn = document
 				.getElementById("comeBackToMain")
 				?.addEventListener("click", () => {
-					window.location.href = "/..";
+					window.location.href = "/";
 				});
+
+			const summonerNameTitle =
+				document.getElementById("summonerNameTitle");
+			const championsContainer =
+				document.getElementById("championsContainer");
+
+			const name = localStorage.getItem("summonerName");
+			const puuid = localStorage.getItem("summonerPUUID");
+
+			if (summonerNameTitle && name) {
+				summonerNameTitle.textContent = "Top 10 Champions of: " + name;
+			}
+
+			async function loadChampions() {
+				try {
+					const versionRes = await fetch(
+						"https://ddragon.leagueoflegends.com/api/versions.json",
+					);
+					const versions = await versionRes.json();
+					const latestVersion = versions[0];
+
+					const champsRes = await fetch(
+						`https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`,
+					);
+					const champsData = await champsRes.json();
+					const champsList = Object.values(champsData.data);
+
+					const response = await fetch(
+						`/api/champions?puuid=${puuid}`,
+					);
+
+					if (response.ok) {
+						const masteries = await response.json();
+
+						if (championsContainer) {
+							championsContainer.innerHTML = "";
+
+							masteries.forEach((mastery: any) => {
+								const champInfo = champsList.find(
+									(c: any) => c.key == mastery.championId,
+								) as any;
+
+								if (champInfo) {
+									const champImage = `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/img/champion/${champInfo.id}.png`;
+
+									championsContainer.innerHTML += `
+										<div style="display: flex; align-items: center; margin-bottom: 15px; padding: 10px; border: 1px solid gray; border-radius: 8px; max-width: 400px;">
+											<img src="${champImage}" alt="${champInfo.name}" width="64" style="border-radius: 50%; margin-right: 15px;" />
+											<div>
+												<h2 style="font-size: 1.2rem;">${champInfo.name}</h2>
+												<p style="margin: 5px 0 0 0;">
+													<strong>Level:</strong> ${mastery.championLevel} |
+													<strong>Points:</strong> ${mastery.championPoints.toLocaleString()}
+												</p>
+											</div>
+										</div>
+									`;
+								}
+							});
+						}
+					} else {
+						if (championsContainer)
+							championsContainer.innerHTML = `<h3 style="color:red;">Error loading champions (Status: ${response.status})</h3>`;
+					}
+				} catch (err) {
+					console.error("Error:", err);
+					if (championsContainer)
+						championsContainer.innerHTML = `<h3 style="color:red;">Connection error.</h3>`;
+				}
+			}
+
+			loadChampions();
 		</script>
 	</body>
-	<script></script>
 </html>

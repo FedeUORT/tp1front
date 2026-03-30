@@ -47,7 +47,12 @@
 					if (!PlayerFound()) return;
 					window.location.href = "/ChampionsInfo";
 				});
-			const checkProfile = document.getElementById("checkProfile");
+			const checkProfile = document
+				.getElementById("checkProfile")
+				?.addEventListener("click", () => {
+					if (!PlayerFound()) return;
+					window.location.href = "/Profile";
+				});
 
 			UpdateTexts();
 
