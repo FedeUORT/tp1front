@@ -1,0 +1,16 @@
+Que onda ivo,
+
+Mira, para este proyecto usé la API de Riot Games, la cual necesita actualizarse cada 24 horas.
+Si hay errores, probablemente sea por eso, pero la idea es que te lo muestre en clase, no? En cualquier caso,
+espero haberte consultado al respecto.
+
+Corrés el código con npm run dev, entrás a la primera parte de la página y te va a pedir que ingreses un usuario.
+Si querés, poder probar con:
+
+FedeUnderStars#CRH
+
+Después, los demás botones se habilitarán para que puedas ver que onda con esos fetchs épico de la API.
+
+Perdón por el front
+
+Fede Ugarte
