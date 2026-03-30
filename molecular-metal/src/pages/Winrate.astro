@@ -7,13 +7,15 @@
 		<button id="comeBackToMain">Come back to main</button>
 		<br />
 		<h1 id="summonerName">Summoner's name:</h1>
-		<h2 id="waitText" style="color: red">Wait a few seconds...</h2>
+		<h2 id="waitText" style="color: red"></h2>
 		<h2 id="winrate">Winrate:</h2>
 		<h3 id="wins">Wins:</h3>
 		<h3 id="losses">Losses:</h3>
 		<h3 id="totalGames">Total games played:</h3>
 
 		<script>
+			import { ClientRouter } from "astro:transitions";
+
 			const comeBackToMainBtn = document
 				.getElementById("comeBackToMain")
 				?.addEventListener("click", () => {
@@ -21,28 +23,66 @@
 				});
 
 			const summonerName = document.getElementById("summonerName");
-			const winrate = document.getElementById("winrate");
-			const wins = document.getElementById("wins");
-			const losses = document.getElementById("losses");
-			const totalGames = document.getElementById("totalGames");
+			const winrateText = document.getElementById("winrate");
+			const winsText = document.getElementById("wins");
+			const lossesText = document.getElementById("losses");
+			const totalGamesText = document.getElementById("totalGames");
 
 			const waitText = document.getElementById("waitText");
 
-			const name = localStorage.getItem("summonerName");
-			const puuid = localStorage.getItem("summonerPUUID");
+			let name = localStorage.getItem("summonerName");
+			let puuid = localStorage.getItem("summonerPUUID");
+
+			UpdateTexts();
 
 			if (summonerName)
 				summonerName.textContent = "Summoner's name: " + name;
-			const response = await fetch(`/api/winrate?&puuid=${puuid}`);
-			if (response.ok) {
+
+			function UpdateMatchesInfo(
+				p_winrate: string,
+				p_wins: string,
+				p_losses: string,
+				p_totalGames: string,
+			) {
+				if (p_winrate) localStorage.setItem("winrate", p_winrate);
+				if (p_wins) localStorage.setItem("wins", p_wins);
+				if (p_losses) localStorage.setItem("losses", p_losses);
+				if (p_totalGames)
+					localStorage.setItem("totalGames", p_totalGames);
+			}
+
+			function UpdateTexts() {
+				if (winrateText)
+					winrateText.textContent =
+						"Winrate: " + localStorage.getItem("winrate");
+				if (winsText)
+					winsText.textContent =
+						"Wins: " + localStorage.getItem("wins");
+				if (lossesText)
+					lossesText.textContent =
+						"Losses: " + localStorage.getItem("losses");
+				if (totalGamesText)
+					totalGamesText.textContent =
+						"Total games: " + localStorage.getItem("totalGames");
+			}
+
+			if (localStorage.getItem("matchesDataLoaded") != "true") {
+				if (waitText)
+					waitText.textContent = "Wait for a few seconds...";
+				const response = await fetch(`/api/winrate?&puuid=${puuid}`);
+				if (response.ok) {
+					const data = await response.json();
+					UpdateMatchesInfo(
+						data.winrate,
+						data.wins,
+						data.losses,
+						data.totalGames,
+					);
+					UpdateTexts();
+					localStorage.setItem("matchesDataLoaded", "true");
+				} else alert("Something went wrong with the winrate fetch");
 				if (waitText) waitText.textContent = "";
-				const data = await response.json();
-				if (winrate) winrate.textContent = "Winrate: " + data.winrate;
-				if (wins) wins.textContent = "Wins: " + data.wins;
-				if (losses) losses.textContent = "Losses: " + data.losses;
-				if (totalGames)
-					totalGames.textContent = "Total games: " + data.totalGames;
-			} else alert("Something went wrong with the winrate fetch");
+			}
 		</script>
 	</body>
 	<script></script>

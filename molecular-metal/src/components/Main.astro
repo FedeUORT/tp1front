@@ -13,6 +13,7 @@
 		/>
 		<button id="searchSummoner">search</button>
 		<br />
+		<h2 id="waitText" style="color: red"></h2>
 		<h2 id="summonerName">Name: Unknown</h2>
 		<h2 id="summonerTag">Tag: Unknown</h2>
 		<h2 id="summonerPUUID">PUUID: Unknown</h2>
@@ -31,61 +32,94 @@
 			const summonerTag = document.getElementById("summonerTag");
 			const summonerPUUID = document.getElementById("summonerPUUID");
 
-			if (summonerName)
-				summonerName.textContent =
-					"Name: " + localStorage.getItem("summonerName");
-
-			if (summonerTag)
-				summonerTag.textContent =
-					"Tag: " + localStorage.getItem("summonerTag");
-
-			if (summonerPUUID)
-				summonerPUUID.textContent =
-					"PUUID: " + localStorage.getItem("summonerPUUID");
-
 			const searchSummonerBtn = document.getElementById("searchSummoner");
+			const waitText = document.getElementById("waitText");
+
 			const checkRecentWinrateBtn = document
 				.getElementById("checkRecentWinrate")
 				?.addEventListener("click", () => {
+					if (!PlayerFound()) return;
 					window.location.href = "/Winrate";
 				});
 			const checkMostPlayerChampionsBtn = document
 				.getElementById("checkMostPlayedChampions")
 				?.addEventListener("click", () => {
+					if (!PlayerFound()) return;
 					window.location.href = "/ChampionsInfo";
 				});
 			const checkProfile = document.getElementById("checkProfile");
 
+			UpdateTexts();
+
+			function PlayerFound() {
+				if (localStorage.getItem("summonerFound") == "true")
+					return true;
+				alert("Summoner not found. Find one valid summoner first.");
+				return false;
+			}
+
+			function UpdateTexts() {
+				if (summonerName)
+					summonerName.textContent =
+						"Name: " + localStorage.getItem("summonerName");
+
+				if (summonerTag)
+					summonerTag.textContent =
+						"Tag: " + localStorage.getItem("summonerTag");
+
+				if (summonerPUUID)
+					summonerPUUID.textContent =
+						"PUUID: " + localStorage.getItem("summonerPUUID");
+			}
+
+			function UpdatePlayerValues(
+				name: string,
+				tag: string,
+				puuid: string,
+			) {
+				localStorage.setItem("summonerName", name);
+				localStorage.setItem("summonerTag", tag);
+				localStorage.setItem("summonerPUUID", puuid);
+			}
+
+			function UpdateWaitText(text: string) {
+				if (waitText) waitText.textContent = text;
+			}
+
+			function EmptyMatchesData() {
+				localStorage.setItem("winrate", "");
+				localStorage.setItem("wins", "");
+				localStorage.setItem("losses", "");
+				localStorage.setItem("totalGames", "");
+			}
+
 			async function SearchPlayer() {
 				const fullId = summonerNameInput.value;
 				const [name, tag] = fullId.split("#");
-
 				if (!name || !tag) {
 					alert(
 						"Por favor ingresa tu Riot ID en el formato Nombre#Tag (ej: MiNombre#LAS)",
 					);
 					return;
 				}
+				EmptyMatchesData();
+				localStorage.setItem("matchesDataLoaded", "false");
+				localStorage.setItem("summonerFound", "false");
+				UpdateWaitText("Wait for a few seconds...");
+				UpdatePlayerValues("", "", "");
+				UpdateTexts();
 
 				const response = await fetch(
 					`/api/player?name=${name}&tag=${tag}`,
 				);
 				if (response.ok) {
+					localStorage.setItem("summonerFound", "true");
 					const data = await response.json();
-					if (summonerName) {
-						summonerName.textContent = "Name: " + data.name;
-						localStorage.setItem("summonerName", data.name);
-					}
-					if (summonerTag) {
-						summonerTag.textContent = "Tag: " + data.tag;
-						localStorage.setItem("summonerTag", data.tag);
-					}
-					if (summonerPUUID) {
-						summonerPUUID.textContent = "PUUID: " + data.puuid;
-						localStorage.setItem("summonerPUUID", data.puuid);
-					}
+					UpdatePlayerValues(data.name, data.tag, data.puuid);
+					UpdateTexts();
 					console.log("Datos desde el servidor de Astro:", data);
 				} else alert("Something went wrong with the player fecth");
+				UpdateWaitText("");
 			}
 
 			searchSummonerBtn?.addEventListener("click", SearchPlayer);
