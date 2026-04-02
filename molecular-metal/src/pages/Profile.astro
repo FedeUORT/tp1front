@@ -1,70 +1,71 @@
 <html>
-	<head>
-		<meta charset="UTF-8" />
-	</head>
-	<body>
-		<button id="comeBackToMain">Come back to main</button>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <button id="comeBackToMain">Come back to main</button>
 
-		<br /><br />
-		<img
-			id="profileIcon"
-			src=""
-			alt="Profile Icon"
-			width="100"
-			style="display: none; border-radius: 50%; border: 3px solid gold;"
-		/>
-		<h1 id="summonerNameTitle">Profile of:</h1>
-		<h2 id="summonerLevel">Level:</h2>
+        <br /><br />
+        <img
+            id="profileIcon"
+            src=""
+            alt="Profile Icon"
+            width="100"
+            style="display: none; border-radius: 50%; border: 3px solid gold;"
+        />
+        <h1 id="summonerNameTitle">Profile of:</h1>
+        <h2 id="summonerLevel">Level:</h2>
 
-		<script>
-			const comeBackToMainBtn = document
-				.getElementById("comeBackToMain")
-				?.addEventListener("click", () => {
-					window.location.href = "/";
-				});
+        <script>
+            const comeBackToMainBtn = document
+                .getElementById("comeBackToMain")
+                ?.addEventListener("click", () => {
+                    window.location.href = "/";
+                });
 
-			const summonerNameTitle =
-				document.getElementById("summonerNameTitle");
-			const summonerLevel = document.getElementById("summonerLevel");
-			const profileIcon = document.getElementById(
-				"profileIcon",
-			) as HTMLImageElement;
+            const summonerNameTitle =
+                document.getElementById("summonerNameTitle");
+            const summonerLevel = document.getElementById("summonerLevel");
+            const profileIcon = document.getElementById(
+                "profileIcon",
+            ) as HTMLImageElement;
 
-			const name = localStorage.getItem("summonerName");
-			const puuid = localStorage.getItem("summonerPUUID");
+            const name = localStorage.getItem("summonerName");
+            const puuid = localStorage.getItem("summonerPUUID");
 
-			if (summonerNameTitle && name) {
-				summonerNameTitle.textContent = "Profile of: " + name;
-			}
+            if (summonerNameTitle && name) {
+                summonerNameTitle.textContent = "Profile of: " + name;
+            }
 
-			async function loadProfile() {
-				try {
-					const versionRes = await fetch(
-						"https://ddragon.leagueoflegends.com/api/versions.json",
-					);
-					const versions = await versionRes.json();
-					const latestVersion = versions[0];
+            async function loadProfile() {
+                try {
+                    const versionRes = await fetch(
+                        "https://ddragon.leagueoflegends.com/api/versions.json",
+                    );
+                    const versions = await versionRes.json();
+                    const latestVersion = versions[0];
 
-					const response = await fetch(`/api/profile?puuid=${puuid}`);
+                    const response = await fetch(`/api/profile?puuid=${puuid}`);
 
-					if (response.ok) {
-						const data = await response.json();
+                    if (response.ok) {
+                        const data = await response.json();
 
-						if (summonerLevel && data.summoner)
-							summonerLevel.textContent =
-								"Level: " + data.summoner.summonerLevel;
+                        if (summonerLevel && data.summoner)
+                            summonerLevel.textContent =
+                                "Level: " + data.summoner.summonerLevel;
 
-						if (profileIcon && data.summoner) {
-							profileIcon.src = `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/img/profileicon/${data.summoner.profileIconId}.png`;
-							profileIcon.style.display = "block";
-						}
-					}
-				} catch (err) {
-					console.error("Error during profile script:", err);
-				}
-			}
+                        if (profileIcon && data.summoner) {
+                            profileIcon.src = `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/img/profileicon/${data.summoner.profileIconId}.png`;
+                            profileIcon.style.display = "block";
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error during profile script:", err);
+                }
+            }
 
-			loadProfile();
-		</script>
-	</body>
+            loadProfile();
+        </script>
+    </body>
 </html>
